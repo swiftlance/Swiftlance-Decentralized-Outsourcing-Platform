@@ -6,7 +6,7 @@ Swiftlance token contract
 ****************************
 */
 
-pragma solidity ^0.4.24;
+pragma solidity ^ 0.4 .24;
 
 /**
  * @title SafeMath
@@ -14,9 +14,9 @@ pragma solidity ^0.4.24;
 library SafeMath {
 
     /**
-    * @dev Multiplies two numbers, throws on overflow.
-    */
-    function mul(uint256 a, uint256 b) internal pure returns (uint256 c) {
+     * @dev Multiplies two numbers, throws on overflow.
+     */
+    function mul(uint256 a, uint256 b) internal pure returns(uint256 c) {
         if (a == 0) {
             return 0;
         }
@@ -26,9 +26,9 @@ library SafeMath {
     }
 
     /**
-    * @dev Integer division of two numbers, truncating the quotient.
-    */
-    function div(uint256 a, uint256 b) internal pure returns (uint256) {
+     * @dev Integer division of two numbers, truncating the quotient.
+     */
+    function div(uint256 a, uint256 b) internal pure returns(uint256) {
         // assert(b > 0); // Solidity automatically throws when dividing by 0
         // uint256 c = a / b;
         // assert(a == b * c + a % b); // There is no case in which this doesn't hold
@@ -36,17 +36,17 @@ library SafeMath {
     }
 
     /**
-    * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-    */
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+     * @dev Subtracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
+     */
+    function sub(uint256 a, uint256 b) internal pure returns(uint256) {
         assert(b <= a);
         return a - b;
     }
 
     /**
-    * @dev Adds two numbers, throws on overflow.
-    */
-    function add(uint256 a, uint256 b) internal pure returns (uint256 c) {
+     * @dev Adds two numbers, throws on overflow.
+     */
+    function add(uint256 a, uint256 b) internal pure returns(uint256 c) {
         c = a + b;
         assert(c >= a);
         return c;
@@ -55,30 +55,35 @@ library SafeMath {
 
 contract ERC20Basic {
     uint256 public totalSupply;
-    function balanceOf(address who) public constant returns (uint256);
-    function transfer(address to, uint256 value) public returns (bool);
+
+    function balanceOf(address who) public constant returns(uint256);
+
+    function transfer(address to, uint256 value) public returns(bool);
     event Transfer(address indexed from, address indexed to, uint256 value);
 }
 
 contract ERC20 is ERC20Basic {
-    function allowance(address owner, address spender) public constant returns (uint256);
-    function transferFrom(address from, address to, uint256 value) public returns (bool);
-    function approve(address spender, uint256 value) public returns (bool);
+    function allowance(address owner, address spender) public constant returns(uint256);
+
+    function transferFrom(address from, address to, uint256 value) public returns(bool);
+
+    function approve(address spender, uint256 value) public returns(bool);
     event Approval(address indexed owner, address indexed spender, uint256 value);
 }
 
 contract Swiftlance is ERC20 {
-    
-    using SafeMath for uint256;
+
+    using SafeMath
+    for uint256;
     address public owner;
 
-    mapping (address => uint256) balances;
-    mapping (address => mapping (address => uint256)) allowed;    
+    mapping(address => uint256) balances;
+    mapping(address => mapping(address => uint256)) allowed;
 
     string public constant name = "Swiftlance token";
     string public constant symbol = "SWL";
     uint public constant decimals = 8;
-    
+
     uint256 public maxSupply = 8000000000e8;
     uint256 public constant minContrib = 1 ether / 100;
     uint256 public SWLPerEther = 20000000e8;
@@ -86,7 +91,7 @@ contract Swiftlance is ERC20 {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);
     event Burn(address indexed burner, uint256 value);
-    constructor () public {
+    constructor() public {
         totalSupply = maxSupply;
         balances[msg.sender] = maxSupply;
         owner = msg.sender;
@@ -96,29 +101,27 @@ contract Swiftlance is ERC20 {
         _;
     }
 
-    function () public payable {
+    function() public payable {
         buySWL();
-     }
-    
-    function dividend(uint256 _amount) internal view returns (uint256){
-        if(_amount >= SWLPerEther.div(2) && _amount < SWLPerEther){ return ((20*_amount).div(100)).add(_amount);}
-        else if(_amount >= SWLPerEther && _amount < SWLPerEther.mul(5)){return ((40*_amount).div(100)).add(_amount);}
-        else if(_amount >= SWLPerEther.mul(5)){return ((70*_amount).div(100)).add(_amount);}
+    }
+
+    function dividend(uint256 _amount) internal view returns(uint256) {
+        if (_amount >= SWLPerEther.div(2) && _amount < SWLPerEther) { return ((20 * _amount).div(100)).add(_amount); } else if (_amount >= SWLPerEther && _amount < SWLPerEther.mul(5)) { return ((40 * _amount).div(100)).add(_amount); } else if (_amount >= SWLPerEther.mul(5)) { return ((70 * _amount).div(100)).add(_amount); }
         return _amount;
     }
-    
+
     function buySWL() payable public {
         address investor = msg.sender;
-        uint256 tokenAmt =  SWLPerEther.mul(msg.value) / 1 ether;
+        uint256 tokenAmt = SWLPerEther.mul(msg.value) / 1 ether;
         require(msg.value >= minContrib && msg.value > 0);
         tokenAmt = dividend(tokenAmt);
         require(balances[owner] >= tokenAmt);
         balances[owner] -= tokenAmt;
         balances[investor] += tokenAmt;
-        emit Transfer(this, investor, tokenAmt);   
+        emit Transfer(this, investor, tokenAmt);
     }
 
-    function balanceOf(address _owner) constant public returns (uint256) {
+    function balanceOf(address _owner) constant public returns(uint256) {
         return balances[_owner];
     }
 
@@ -128,8 +131,8 @@ contract Swiftlance is ERC20 {
         assert(msg.data.length >= size + 4);
         _;
     }
-    
-    function transfer(address _to, uint256 _amount) onlyPayloadSize(2 * 32) public returns (bool success) {
+
+    function transfer(address _to, uint256 _amount) onlyPayloadSize(2 * 32) public returns(bool success) {
         require(_to != address(0));
         require(_amount <= balances[msg.sender]);
         balances[msg.sender] = balances[msg.sender].sub(_amount);
@@ -137,7 +140,8 @@ contract Swiftlance is ERC20 {
         emit Transfer(msg.sender, _to, _amount);
         return true;
     }
-    function transferFrom(address _from, address _to, uint256 _amount) onlyPayloadSize(3 * 32) public returns (bool success) {
+
+    function transferFrom(address _from, address _to, uint256 _amount) onlyPayloadSize(3 * 32) public returns(bool success) {
         require(_to != address(0));
         require(_amount <= balances[_from]);
         require(_amount <= allowed[_from][msg.sender]);
@@ -147,30 +151,30 @@ contract Swiftlance is ERC20 {
         emit Transfer(_from, _to, _amount);
         return true;
     }
-    
-    function approve(address _spender, uint256 _value) public returns (bool success) {
+
+    function approve(address _spender, uint256 _value) public returns(bool success) {
         if (_value != 0 && allowed[msg.sender][_spender] != 0) { return false; }
         allowed[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         return true;
     }
-    
-    function allowance(address _owner, address _spender) constant public returns (uint256) {
+
+    function allowance(address _owner, address _spender) constant public returns(uint256) {
         return allowed[_owner][_spender];
     }
-    
+
     function transferOwnership(address _newOwner) onlyOwner public {
         if (_newOwner != address(0)) {
             owner = _newOwner;
         }
     }
-    
+
     function withdrawFund() onlyOwner public {
         address thisCont = this;
         uint256 ethBal = thisCont.balance;
         owner.transfer(ethBal);
     }
-    
+
     function burn(uint256 _value) onlyOwner public {
         require(_value <= balances[msg.sender]);
         address burner = msg.sender;
@@ -178,5 +182,5 @@ contract Swiftlance is ERC20 {
         totalSupply = totalSupply.sub(_value);
         emit Burn(burner, _value);
     }
-    
+
 }
